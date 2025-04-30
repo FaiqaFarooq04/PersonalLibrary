@@ -57,19 +57,30 @@ if choice.startswith("1"):
     read_status = st.radio("Have you read this book?", ["Yes", "No"],horizontal=True) == "Yes"
 
     if st.button("Add Book"):
-        if not title or not author:
+        if not title.strip() or not author.strip():
             st.warning("Title and author are required.")
         else:
-            book = {
-                "Title": title,
-                "Author": author,
-                "Publication Year": int(year),
-                "Genre": genre,
-                "Read Status": read_status
-            }
-            library.append(book)
-            save_library_txt(library)  # Save the updated library to the file
-            st.success(f'"{title}" has been added.')
+            normalized_title = title.strip().lower()
+            normalized_author = author.strip().lower()
+
+            duplicate = any(
+            book["Title"].strip().lower() == normalized_title and
+            book["Author"].strip().lower() == normalized_author
+            for book in library)
+            
+            if duplicate:
+                st.warning(f'"{title}" by {author} already exists in your library.')
+            else:
+                book = {
+                    "Title": title,
+                    "Author": author,
+                    "Publication Year": int(year),
+                    "Genre": genre,
+                    "Read Status": read_status
+                }
+                library.append(book)
+                save_library_txt(library)
+                st.success(f'"{title}" has been added.')
 
 # Remove Book
 elif choice.startswith("2"):
